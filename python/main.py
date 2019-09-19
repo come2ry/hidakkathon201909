@@ -9,12 +9,13 @@
 #     app.run(debug=True, host='0.0.0.0', port=8080)
 
 # coding: utf-8
-from flask import Flask, abort, request, jsonify, abort, make_response
+from flask import Flask, abort, request, jsonify, abort, make_response, send_file
 from flask_restful import Resource, Api
 from config import Config
 from __init__ import app, db
 from models import *
 import logging
+import io
 # from sqlalchemy import create_engine
 
 # engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
@@ -189,12 +190,28 @@ class Event(Resource):
 
 
 class Image(Resource):
-    def get(self, event_id):
-        return '', 200
+    def get(self, id):
+        image = db.session.query(iEventImage).filter_by(event_id=id).one_or_none()
+        if image is None:
+            response = make_response("", 404)
+            return response
+
+        image_bin = image.img_binary
+        return send_file(
+            io.BytesIO(image_bin),
+            mimetype='image/png'
+        )
+
+        # response = make_response(image_bin)
+        # response.headers.set('Content-Type', 'image/jpeg')
+        # response.status_code = 200
+
+        # return response
 
 
 # api.add_resource(Test, '/event/<id>')
 api.add_resource(Event, '/event/<id>')
+api.add_resource(Image, '/image/event/<id>')
 
 
 if __name__ == "__main__":
