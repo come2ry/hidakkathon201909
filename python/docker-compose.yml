@@ -36,4 +36,5 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
     volumes:
       - ../mysql:/docker-entrypoint-initdb.d
+      - ../mysql/my.cnf:/etc/mysql/conf.d/my.cnf
     restart: always

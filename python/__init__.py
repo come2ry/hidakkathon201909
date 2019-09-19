@@ -10,7 +10,7 @@ def create_app():
     app = Flask(__name__)
     CORS(app)
     app.config.from_object('config.Config')
-    app.secret_key = os.getenv("API_SECRET_KEY", None)
+    app.secret_key = os.getenv("SECRET_KEY", 'iU9GW39Ghs2Jh1Rq0n0Pn8AwIsiXnwB9')
 
     db.init_app(app)
 

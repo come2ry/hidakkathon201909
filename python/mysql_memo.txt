@@ -27,6 +27,12 @@ tales
 | participant_limit_num | int(10) unsigned    | NO   |     | NULL                |                |
 | event_detail          | text                | YES  |     | NULL                |                |
 +-----------------------+---------------------+------+-----+---------------------+----------------+
++----------+-----------------+
+| event_id | target_user     |
++----------+-----------------+
+|        1 | プランナー      |
+|        2 | エンジニア      |
++----------+-----------------+
 
 - i_event_image
 +------------+---------------------+------+-----+---------+-------+
@@ -51,6 +57,12 @@ tales
 | event_id            | bigint(20) unsigned | NO   | PRI | NULL    |       |
 | target_user_type_id | int(10) unsigned    | NO   | PRI | NULL    |       |
 +---------------------+---------------------+------+-----+---------+-------+
++----------+---------------------+
+| event_id | target_user_type_id |
++----------+---------------------+
+|        3 |                   3 |
+|        3 |                   4 |
++----------+---------------------+
 
 - i_participate_event
 +----------+---------------------+------+-----+---------+-------+
@@ -94,3 +106,51 @@ tales
 | target_user_type_name | varchar(32)      | NO   |     | NULL    |                |
 | color_code            | varchar(64)      | NO   |     | NULL    |                |
 +-----------------------+------------------+------+-----+---------+----------------+
++---------------------+-----------------------+------------+
+| target_user_type_id | target_user_type_name | color_code |
++---------------------+-----------------------+------------+
+|                   1 | エンジニア            | #808080    |
+|                   2 | クリエイター          | #000080    |
+|                   3 | SRE                   | #008080    |
++---------------------+-----------------------+------------+
+
+
+
+HTTP/1.0 200 OK
+Content-Type: application/json
+Content-Length: 1248
+Access-Control-Allow-Origin: *
+Vary: Cookie
+Server: Werkzeug/0.15.6 Python/3.7.4
+Date: Thu, 19 Sep 2019 15:15:43 GMT
+
+{
+  "attend_user_list": [
+    {
+      "is_admin": false,
+      "user_id": "aaliyah_leannon102",
+      "user_name": "トモユキ_1"
+    }
+  ],
+  "detail_comment": "\n\n\n== 他の紀年法 ==\n\n* 干支 : 戊辰\n* 日本\n** 神功皇后摂政48年\n** 皇紀908年\n* 中国\n** 魏 : 正始9年\n** 蜀 : 延熙11年\n** 呉 : 赤烏11年\n* 朝鮮\n** 高句麗 : 東川王22年、中川王元年\n** 新羅 : 沾解王2年\n** 百済 : 古尓王15年\n** 檀紀2581年\n* 仏滅紀元 : 791年\n* ユダヤ暦 : 4008年 - 4009年\n\n== できごと ==\n*日本神話の天照大神の岩戸隠れのエピソードは、この年日本で見られた日食をモチーフにしたものとする解釈がある。\n\n== 誕生 ==\n\n== 死去 ==\n*卑弥呼\n\n*",
+  "end_date": "2018-01-01 21:00",
+  "event_id": 1,
+  "event_name": "248年",
+  "is_attend": false,
+  "is_author": false,
+  "location": "マークシティ17F SeminarRoom",
+  "participant_limit_num": 1,
+  "registered_user": {
+    "is_admin": false,
+    "user_id": "aaliyah_leannon102",
+    "user_name": "トモユキ_1"
+  },
+  "start_date": "2018-01-01 18:00",
+  "tag_list": [
+    2
+  ],
+  "target_user": "プランナー",
+  "target_user_type": [
+    10
+  ]
+}

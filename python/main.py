@@ -1,194 +1,194 @@
-# from flask import Flask, abort
-# app = Flask(__name__)
-
-# @app.route('/<path>')
-# def index(path):
-#     abort(501)
-
-# if __name__ == '__main__':
-#     app.run(debug=True, host='0.0.0.0', port=8080)
-
 # coding: utf-8
 from flask import Flask, abort, request, jsonify, abort, make_response, send_file
 from flask_restful import Resource, Api
+from pprint import pprint
 from config import Config
 from __init__ import app, db
 from models import *
+from auth import *
+from event import *
+from admin import *
+from sqlalchemy import func
 import logging
 import io
+import calendar
 # from sqlalchemy import create_engine
 
 # engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
 api = Api(app)
+# TODO: 昇順 order_by確認
 
 
-class Test(Resource):
-    def get(self, id):
-        events = db.session.query(mEventTag).filter(mEventTag.tag_id==id).all()
-        print(events)
-        response = jsonify({'user': str(events)})
-        response.status_code = 200
-        return response
+# class Test(Resource):
+#     def get(self, id):
+#         events = db.session.query(mEventTag).filter(mEventTag.tag_id==id).all()
+#         # pprint(events)
+#         response = jsonify({'user': str(events)})
+#         response.status_code = 200
+#         return response
 
-    # def post(self, id):
-    #     # users.append(request.json)
-    #     response = jsonify({})
-    #     response.status_code = 204
-    #     return response
+class Top(Resource):
+    # API03
+    def get(self):
+        # sessionからget
+        me = get_user()
 
-    # def put(self):
-    #     # user = request.json
-    #     response = jsonify({})
-    #     response.status_code = 204
-    #     return response
+        # ImmutableMultiDict([('target_year', '2019'), ('target_month', '9')])
+        now = datetime.now()
+        target_year = request.args.get('target_year', now.year)
+        target_month = request.args.get('target_month', now.month)
+        # print(target_year, target_month)
 
-    # def delete(self):
-    #     # id = request.args.get('id')
-    #     response = jsonify({})
-    #     response.status_code = 204
-    #     return response
+        # _, lastday = calendar.monthrange(a.year,a.month)
+        events = db.session.query(iEvent).filter(func.extract('year', iEvent.start_date) == target_year, func.extract('month', iEvent.start_date) == target_month).all()
+        # print(events)
 
+        tag_list = db.session.query(mEventTag).order_by(mEventTag.tag_id.asc()).all()
+        tag_list = [dict(tag_id=t.tag_id, tag_name=t.tag_name) for t in tag_list]
 
-class Event(Resource):
-    def get(self, id):
-        res_dict = dict()
-        #====TODO:login処理実装後変更====#
-        # if logged_in:
-        #   me = {}
-        # else:
-        #   me = None
-        # me = get_login_user()
-        me = None
-        #====TODO:login処理実装後変更====#
+        _target_user_type_list = db.session.query(mTargetUserType).order_by(mTargetUserType.target_user_type_id.asc()).all()
+        target_user_type_list = [dict(target_user_type_id=t.target_user_type_id, target_user_type_name=t.target_user_type_name, color_code=t.color_code) for t in _target_user_type_list]
 
+        color_code_dict = dict([(t.target_user_type_id, t.color_code) for t in _target_user_type_list])
 
-        #=============== i_event properties ==================#
-        # i_event by <event_id>:
-        #   event_id, event_name, start_date, end_date,
-        #   location, target_user, created_user_id,
-        #   participant_limit_num, (event_detail -> detail_comment)
-        #=============== i_event properties ==================#
-        # event = get_event(id)
-        event = db.session.query(iEvent).filter_by(event_id=id).one_or_none()
-        # print(event.__dict__)
+        event_info_list = []
+        for e in events:
+            color_code = "#999900"
+            if len(e.target_user_type_list) <= 1:
+                color_code = color_code_dict[e.target_user_type_list[0].target_user_type_id]
 
-        # event_id なし
-        if event is None:
-            response = make_response("", 400)
-            return response
+            print(e.target_user_type_list, color_code)
 
-
-        #=============== i_participate_event properties ==================#
-        # i_participate_event by <event_id>:
-        #   i_user by <user_id> if i_user.os_admin == True:
-        #       { user_id: str, user_name: str, is_admin: bool }
-        # &
-        # i_participate_event by <event_id>:
-        #   i_user by <user_id> if i_user.os_admin == False:
-        #       [{ user_id: str, user_name: str, is_admin: bool }]
-        #=============== i_participate_event properties ==================#
-
-        # fields = [
-        #     'id',
-        #     'twitter_id']
-        # res = cls.query.options(
-        #     load_only(*fields)).filter_by(**{key: string}).one_or_none()
-
-        # TODO: N+1なのであとで直す
-        registered_user = None
-        attend_user_list = []
-        events_list = db.session.query(iParticipateEvent).filter_by(event_id=id).all()
-        for e in events_list:
-            user = db.session.query(iUser).filter_by(user_id=e.user_id).one_or_none()
-            if event.created_user_id == user.user_id:
-                if registered_user is not None:
-                    # registered_user 複数人!?
-                    abort(404)
-
-                registered_user = dict(
-                    user_id=user.user_id,
-                    user_name=user.user_name,
-                    is_admin=True if user.is_admin else False
-                )
-
-            attend_user_list += [dict(
-                user_id=user.user_id,
-                user_name=user.user_name,
-                is_admin=True if user.is_admin else False
+            event_info_list += [dict(
+                event_id=e.event_id,
+                event_name=e.event_name,
+                start_date=e.get_start_date(),
+                end_date=e.get_end_date(),
+                color_code=color_code
             )]
-        if registered_user is None:
-            user = db.session.query(iUser).filter_by(user_id=event.created_user_id).first()
-            registered_user = dict(
-                user_id=user.user_id,
-                user_name=user.user_name,
-                is_admin=True if user.is_admin else False
-            )
-
-        # is_author
-        is_author = False
-        if me is None:
-            is_author = False
-        else:
-            if me.id == registered_user.get('user_id'):
-                is_author = True
-            else:
-                is_author = False
-
-        # is_attend
-        is_attend = False
-        if is_author:
-            is_attend = True
-        else:
-            if me is None:
-                is_author = False
-            else:
-                attend_user_ids_set = set([user.get('user_id') for user in attend_user_list])
-                if me.id in attend_user_ids_set:
-                    is_author = True
-                else:
-                    is_author = False
-
-
-        #=============== i_event_target_user_type properties ==================#
-        # i_event_target_user_type by <event_id>:
-        #   [target_user_type]
-        #=============== i_event_target_user_type properties ==================#
-        target_user_type_row = db.session.query(iEventTargetUserType).filter_by(event_id=id).all()
-        target_user_type = [t.target_user_type_id for t in target_user_type_row]
-
-
-        #=============== i_event_tag properties ==================#
-        # i_event_tag by <event_id>:
-        #   [tag_id]
-        #=============== i_event_tag properties ==================#
-        # tag_list = get_tag_list_from_event_id(id)
-        tag_row = db.session.query(iEventTag).filter_by(event_id=id).all()
-        tag_list = [t.tag_id for t in tag_row]
 
 
         res_dic = dict(
-            event_id=event.event_id,
-            event_name=event.event_name,
-            start_date=event.get_start_date(),
-            end_date=event.get_end_date(),
-            location=event.location,
-            target_user_type=target_user_type,
-            target_user=event.target_user,
-            registered_user=registered_user,
-            participant_limit_num=event.participant_limit_num,
-            detail_comment=event.event_detail,
+            event_info_list=event_info_list,
             tag_list=tag_list,
-            attend_user_list=attend_user_list,
-            is_author=is_author,
-            is_attend=is_attend
+            target_user_type_list=target_user_type_list
         )
+
+        if me is not None:
+            res_dic['user_id'] = me.user_id
+            res_dic['user_name'] = me.user_name
+            res_dic['is_admin'] = me.is_admin
 
         response = jsonify(res_dic)
         response.status_code = 200
         return response
 
+class User(Resource):
+    # API12
+    def get(self):
+        # sessionからget
+        me = get_user()
+        if me is None:
+            response = make_response("", 401)
+            return response
 
+        user = db.session.query(iUser).filter_by(user_id=me.user_id).one_or_none()
+        events = db.session.query(iParticipateEvent).filter_by(user_id=me.user_id).order_by(iParticipateEvent.event_id.asc()).all()
+        _target_user_type_list = db.session.query(mTargetUserType).all()
+        color_code_dict = dict([(t.target_user_type_id, t.color_code) for t in _target_user_type_list])
+
+        event_info_list = []
+        for _e in events:
+            e = _e.event
+            color_code = "#999900"
+            target_list = e.target_user_type_list
+            if len(target_list) <= 1:
+                color_code = color_code_dict[target_list[0].target_user_type_id]
+
+            # print(e.event.target_user_type_list, color_code)
+
+            event_info_list += [dict(
+                event_id=e.event_id,
+                event_name=e.event_name,
+                start_date=e.get_start_date(),
+                end_date=e.get_end_date(),
+                color_code=color_code
+            )]
+
+        res_dic = dict(
+            user_name=me.user_name,
+            user_comment=user.user_comment,
+            event_info_list=event_info_list
+        )
+        response = jsonify(res_dic)
+        response.status_code = 200
+        return response
+
+    # API14
+    def put(self):
+        # sessionからget
+        me = get_user()
+        if me is None:
+            response = make_response("", 401)
+            return response
+
+        json_data = request.get_json(force=True)
+        user_name = json_data.get('user_name', '')
+        user_comment = json_data.get('user_comment', '')
+
+        user = db.session.query(iUser).filter_by(user_id=me.user_id).one_or_none()
+        user.user_name = user_name
+        user.user_comment = user_comment
+        db.session.commit()
+
+        response = make_response("", 200)
+        return response
+
+
+
+class Other(Resource):
+    # API13
+    def get(self, id):
+        # sessionからget
+        me = get_user()
+        if me is None:
+            response = make_response("", 401)
+            return response
+
+        user = db.session.query(iUser).filter_by(user_id=id).one_or_none()
+        events = db.session.query(iParticipateEvent).filter_by(user_id=id).order_by(iParticipateEvent.event_id.asc()).all()
+        _target_user_type_list = db.session.query(mTargetUserType).all()
+        color_code_dict = dict([(t.target_user_type_id, t.color_code) for t in _target_user_type_list])
+
+        event_info_list = []
+        for _e in events:
+            e = _e.event
+            color_code = "#999900"
+            target_list = e.target_user_type_list
+            if len(target_list) <= 1:
+                color_code = color_code_dict[target_list[0].target_user_type_id]
+
+            # print(e.event.target_user_type_list, color_code)
+
+            event_info_list += [dict(
+                event_id=e.event_id,
+                event_name=e.event_name,
+                start_date=e.get_start_date(),
+                end_date=e.get_end_date(),
+                color_code=color_code
+            )]
+
+        res_dic = dict(
+            user_name=user.user_name,
+            user_comment=user.user_comment,
+            event_info_list=event_info_list
+        )
+        response = jsonify(res_dic)
+        response.status_code = 200
+        return response
+
+# API10
 class Image(Resource):
     def get(self, id):
         image = db.session.query(iEventImage).filter_by(event_id=id).one_or_none()
@@ -202,16 +202,19 @@ class Image(Resource):
             mimetype='image/png'
         )
 
-        # response = make_response(image_bin)
-        # response.headers.set('Content-Type', 'image/jpeg')
-        # response.status_code = 200
-
-        # return response
-
 
 # api.add_resource(Test, '/event/<id>')
-api.add_resource(Event, '/event/<id>')
-api.add_resource(Image, '/image/event/<id>')
+api.add_resource(Event, '/event/<id>', '/event')
+api.add_resource(EventCancel, '/event/cancel')
+api.add_resource(Image, '/event/image/<id>')
+api.add_resource(Top, '/top')
+api.add_resource(User, '/user')
+api.add_resource(Other, '/user/<id>')
+api.add_resource(Admin, '/admin/user/<id>', '/admin/users', '/admin/user')
+api.add_resource(AdminTag, '/admin/tag/<id>', '/admin/tag')
+api.add_resource(AdminTargetType, '/admin/target_user_type/<id>', '/admin/target_user_type')
+api.add_resource(Login, '/auth/login')
+api.add_resource(Logout, '/auth/logout')
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ class DevelopmentConfig:
 
     DEBUG = True
     JSON_AS_ASCII = False
-    API_SECRET_KEY = 'iU9GW39Ghs2Jh1Rq0n0Pn8AwIsiXnwB9'
+    SECRET_KEY = 'iU9GW39Ghs2Jh1Rq0n0Pn8AwIsiXnwB9'
     # DB_HOST: db
     #   DB_PORT: 3306
     #   DB_NAME: sugori_rendez_vous
