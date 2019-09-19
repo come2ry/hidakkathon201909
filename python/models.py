@@ -26,7 +26,7 @@ class iEvent(db.Model):
         # format_date = "{0:%Y-%m-%d %H:%M:%S}".format(self.start_date)
         # print('start-p-f', format_date)
         # return format_date
-        return self.start_date.strftime("%Y-%m-%d %H:%M:%S")
+        return self.start_date.strftime("%Y-%m-%d %H:%M")
 
 
     def get_end_date(self):
@@ -34,7 +34,7 @@ class iEvent(db.Model):
         # format_date = "{0:%Y-%m-%d %H:%M:%S}".format(self.end_date)
         # print('end-p-f', format_date)
         # return format_date
-        return self.end_date.strftime("%Y-%m-%d %H:%M:%S")
+        return self.end_date.strftime("%Y-%m-%d %H:%M")
 
 
 class iEventImage(db.Model):
