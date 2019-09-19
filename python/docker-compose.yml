@@ -14,7 +14,7 @@ services:
     build: .
     volumes:
       - ./:/usr/src/app
-    command: python main.py
+    command: python -u main.py
     environment:
       DB_HOST: db
       DB_PORT: 3306

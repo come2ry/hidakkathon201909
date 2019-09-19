@@ -1,6 +1,7 @@
 from datetime import datetime
 from __init__ import db
 from sqlalchemy.ext.declarative import declarative_base
+import logging
 
 Base = declarative_base()
 
@@ -12,13 +13,28 @@ class iEvent(db.Model):
     # event_id = db.Column(db.BigInteger, event_id_seq, server_default=event_id_seq.next_value(), nullable=False, autoincrement=True, primary_key=True)
     event_id = db.Column(db.BigInteger, nullable=False, autoincrement=True, primary_key=True)
     event_name = db.Column(db.String(128), nullable=False)
-    start_date = db.Column(db.DateTime, nullable=False, default='0000-00-00 00:00:00')
-    end_date = db.Column(db.DateTime, nullable=False, default='0000-00-00 00:00:00')
+    start_date = db.Column(db.DateTime, nullable=False, default=datetime.now())
+    end_date = db.Column(db.DateTime, nullable=False, default=datetime.now())
     location = db.Column(db.String(128), nullable=True)
     target_user =  db.Column(db.String(128), nullable=True)
     created_user_id = db.Column(db.String(128), nullable=False)
     participant_limit_num = db.Column(db.Integer, nullable=False)
     event_detail = db.Column(db.Text)
+
+    def get_start_date(self):
+        # print('start-p', self.start_date)
+        # format_date = "{0:%Y-%m-%d %H:%M:%S}".format(self.start_date)
+        # print('start-p-f', format_date)
+        # return format_date
+        return self.start_date.strftime("%Y-%m-%d %H:%M:%S")
+
+
+    def get_end_date(self):
+        # print('end-p', self.end_date)
+        # format_date = "{0:%Y-%m-%d %H:%M:%S}".format(self.end_date)
+        # print('end-p-f', format_date)
+        # return format_date
+        return self.end_date.strftime("%Y-%m-%d %H:%M:%S")
 
 
 class iEventImage(db.Model):
