@@ -1,0 +1,96 @@
+tales
++------------------------------+
+| Tables_in_sugori_rendez_vous |
++------------------------------+
+| i_event                      |
+| i_event_image                |
+| i_event_tag                  |
+| i_event_target_user_type     |
+| i_participate_event          |
+| i_user                       |
+| m_event_tag                  |
+| m_target_user_type           |
++------------------------------+
+
+
+- i_event
++-----------------------+---------------------+------+-----+---------------------+----------------+
+| Field                 | Type                | Null | Key | Default             | Extra          |
++-----------------------+---------------------+------+-----+---------------------+----------------+
+| event_id              | bigint(20) unsigned | NO   | PRI | NULL                | auto_increment |
+| event_name            | varchar(128)        | NO   |     | NULL                |                |
+| start_date            | timestamp           | NO   |     | 0000-00-00 00:00:00 |                |
+| end_date              | timestamp           | NO   |     | 0000-00-00 00:00:00 |                |
+| location              | varchar(128)        | YES  |     | NULL                |                |
+| target_user           | varchar(128)        | YES  |     | NULL                |                |
+| created_user_id       | varchar(128)        | NO   |     | NULL                |                |
+| participant_limit_num | int(10) unsigned    | NO   |     | NULL                |                |
+| event_detail          | text                | YES  |     | NULL                |                |
++-----------------------+---------------------+------+-----+---------------------+----------------+
+
+- i_event_image
++------------+---------------------+------+-----+---------+-------+
+| Field      | Type                | Null | Key | Default | Extra |
++------------+---------------------+------+-----+---------+-------+
+| event_id   | bigint(20) unsigned | NO   | PRI | NULL    |       |
+| img_binary | mediumblob          | NO   |     | NULL    |       |
++------------+---------------------+------+-----+---------+-------+
+
+- i_event_tag
++----------+---------------------+------+-----+---------+-------+
+| Field    | Type                | Null | Key | Default | Extra |
++----------+---------------------+------+-----+---------+-------+
+| event_id | bigint(20) unsigned | NO   | PRI | NULL    |       |
+| tag_id   | int(10) unsigned    | NO   | PRI | NULL    |       |
++----------+---------------------+------+-----+---------+-------+
+
+- i_event_target_user_type
++---------------------+---------------------+------+-----+---------+-------+
+| Field               | Type                | Null | Key | Default | Extra |
++---------------------+---------------------+------+-----+---------+-------+
+| event_id            | bigint(20) unsigned | NO   | PRI | NULL    |       |
+| target_user_type_id | int(10) unsigned    | NO   | PRI | NULL    |       |
++---------------------+---------------------+------+-----+---------+-------+
+
+- i_participate_event
++----------+---------------------+------+-----+---------+-------+
+| Field    | Type                | Null | Key | Default | Extra |
++----------+---------------------+------+-----+---------+-------+
+| event_id | bigint(20) unsigned | NO   | PRI | NULL    |       |
+| user_id  | varchar(128)        | NO   | PRI | NULL    |       |
++----------+---------------------+------+-----+---------+-------+
+
+- i_user
++--------------+--------------+------+-----+---------+-------+
+| Field        | Type         | Null | Key | Default | Extra |
++--------------+--------------+------+-----+---------+-------+
+| user_id      | varchar(128) | NO   | PRI | NULL    |       |
+| user_name    | varchar(128) | YES  |     | NULL    |       |
+| password     | varchar(128) | NO   |     | NULL    |       |
+| user_comment | text         | NO   |     | NULL    |       |
+| is_admin     | tinyint(1)   | NO   |     | NULL    |       |
++--------------+--------------+------+-----+---------+-------+
++----------------------------+-------------------------+----------------------------+-------------------------+----------+
+| user_id                    | user_name               | password                   | user_comment            | is_admin |
++----------------------------+-------------------------+----------------------------+-------------------------+----------+
+| aaliyah656                 | リム                    | aaliyah656                 | リム                    |        0 |
+| aaliyah_leannon102         | トモユキ_1              | aaliyah_leannon102         | トモユキ_1              |        0 |
+| abbey3691                  | ソウタ_8                | abbey3691                  | ソウタ_8                |        1 |
+
+
+- m_event_tag
++----------+------------------+------+-----+---------+----------------+
+| Field    | Type             | Null | Key | Default | Extra          |
++----------+------------------+------+-----+---------+----------------+
+| tag_id   | int(10) unsigned | NO   | PRI | NULL    | auto_increment |
+| tag_name | varchar(128)     | NO   |     | NULL    |                |
++----------+------------------+------+-----+---------+----------------+
+
+- m_target_user_type
++-----------------------+------------------+------+-----+---------+----------------+
+| Field                 | Type             | Null | Key | Default | Extra          |
++-----------------------+------------------+------+-----+---------+----------------+
+| target_user_type_id   | int(10) unsigned | NO   | PRI | NULL    | auto_increment |
+| target_user_type_name | varchar(32)      | NO   |     | NULL    |                |
+| color_code            | varchar(64)      | NO   |     | NULL    |                |
++-----------------------+------------------+------+-----+---------+----------------+

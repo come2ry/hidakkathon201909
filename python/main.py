@@ -12,7 +12,7 @@
 from flask import Flask, abort, request, jsonify
 from flask_restful import Resource, Api
 from config import Config
-from __init__ import app
+from __init__ import app, db
 from sqlalchemy import create_engine
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
@@ -75,7 +75,92 @@ class User(Resource):
         response.status_code = 204
         return response
 
+
+class Event(Resource):
+    def get(self, id):
+        #====TODO:login処理実装後変更====#
+        # if logged_in:
+        #   me = {}
+        # else:
+        #   me = None
+        # me = get_login_user()
+        me = None
+        #====TODO:login処理実装後変更====#
+
+        #================properties===================#
+        # i_participate_event by <event_id>:
+        #   i_user by <user_id> if i_user.os_admin == True:
+        #       { user_id: str, user_name: str, is_admin: bool }
+        #================properties===================#
+        event_register = get_admin_user(id)
+
+        # is_author
+        if me is None:
+            is_author = False
+        else:
+            if me.id == event_register.user_id:
+                is_author = True
+            else:
+                is_author = False
+
+        #================properties===================#
+        # i_participate_event by <event_id>:
+        #   i_user by <user_id> if i_user.os_admin == False:
+        #       [{ user_id: str, user_name: str, is_admin: bool }]
+        #================properties===================#
+        attend_users_list = get_attend_users(id)
+        attend_users_id_set = set([user.user_id for user in attend_users_list])
+
+        # is_attend
+        #====ASK: is_author -> is_attend = True???====#
+        if is_author:
+            is_attend = True
+        else:
+            if me is None:
+                is_author = False
+            else:
+                if me.id in attend_users_id_set:
+                    is_author = True
+                else:
+                    is_author = False
+        #====ASK: is_author -> is_attend = True???====#
+
+        #================properties===================#
+        # i_event by <event_id>:
+        #   event_id, event_name, start_date, end_date,
+        #   location, target_user, created_user_id,
+        #   participant_limit_num, (event_detail -> detail_comment)
+        #================properties===================#
+        event = get_event(id)
+
+
+        #================properties===================#
+        # i_event_target_user_type by <event_id>:
+        #   [target_user_type]
+        #================properties===================#
+        target_user_type = get_target_user_type(id)
+
+
+        #================properties===================#
+        # i_event_tag by <event_id>:
+        #   [tag_id]
+        #================properties===================#
+        tag_list = get_tag_list_from_event_id(id)
+
+
+
+        target_user
+
+        # res_dic = dict(user_id=None)
+        response = jsonify({'user': user.get('name')})
+        response.status_code = 200
+        return response
+
+
+
+
 api.add_resource(User, '/user')
+api.add_resource(Event, '/event/<id>')
 
 
 if __name__ == "__main__":
