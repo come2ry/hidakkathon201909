@@ -115,7 +115,13 @@ class Event(Resource):
                 user_name=user.user_name,
                 is_admin=True if user.is_admin else False
             )]
-
+        if registered_user is None:
+            user = db.session.query(iUser).filter_by(user_id=event.created_user_id).first()
+            registered_user = dict(
+                user_id=user.user_id,
+                user_name=user.user_name,
+                is_admin=True if user.is_admin else False
+            )
 
         # is_author
         is_author = False
