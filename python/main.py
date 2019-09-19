@@ -107,13 +107,13 @@ class Event(Resource):
                 registered_user = dict(
                     user_id=user.user_id,
                     user_name=user.user_name,
-                    is_admin=user.is_admin
+                    is_admin=1 if user.is_admin else 0,
                 )
 
             attend_user_list += [dict(
                 user_id=user.user_id,
                 user_name=user.user_name,
-                is_admin=user.is_admin
+                is_admin=1 if user.is_admin else 0
             )]
 
 
