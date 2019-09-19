@@ -1,2 +1,3 @@
 go/bin
 vendor/*
+python/__pycache__
