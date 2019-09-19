@@ -9,75 +9,49 @@
 #     app.run(debug=True, host='0.0.0.0', port=8080)
 
 # coding: utf-8
-from flask import Flask, abort, request, jsonify
+from flask import Flask, abort, request, jsonify, abort
 from flask_restful import Resource, Api
 from config import Config
 from __init__ import app, db
-from sqlalchemy import create_engine
-engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
+from models import *
+import logging
+# from sqlalchemy import create_engine
+
+# engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
 api = Api(app)
 
-# def get_user():
-#     try:
-#         conn = dbh()
-#         with conn.cursor() as c:
-#             sql = "SELECT * FROM `users` WHERE `id` = %s limit 1"
-#             c.execute(sql, [user_id])
-#             user = c.fetchone()
-#             if user is None:
-#                 http_json_error(requests.codes['not_found'], "user not found")
-#     except MySQLdb.Error as err:
-#         app.logger.exception(err)
-#         http_json_error(requests.codes['internal_server_error'], "db error")
-#     return user
 
-# # 接続する
-# with engine.connect() as con:
-
-#     # テーブルの作成
-#     con.execute("CREATE TABLE USERS(id INTEGER PRIMARY KEY, name TEXT, age INTEGER)")
-
-#     # Insert文を実行する
-#     con.execute("INSERT INTO USERS (id, name, age) VALUES(1, 'Kuro', '33')")
-#     con.execute("INSERT INTO USERS (id, name, age) VALUES(2, 'Sato', '27')")
-
-#     # Select文を実行する
-#     rows = con.execute("select * from users;")
-#     for row in rows:
-#         print(row)
-
-
-class User(Resource):
-    def get(self):
-        id = request.args.get('id')
-        user = {'name': 'guest'}
-        # user = get_user(id)
-        response = jsonify({'user': user.get('name')})
+class Test(Resource):
+    def get(self, id):
+        events = db.session.query(mEventTag).filter(mEventTag.tag_id==id).all()
+        print(events)
+        response = jsonify({'user': str(events)})
         response.status_code = 200
         return response
 
-    def post(self):
-        # users.append(request.json)
-        response = jsonify({})
-        response.status_code = 204
-        return response
+    # def post(self, id):
+    #     # users.append(request.json)
+    #     response = jsonify({})
+    #     response.status_code = 204
+    #     return response
 
-    def put(self):
-        # user = request.json
-        response = jsonify({})
-        response.status_code = 204
-        return response
+    # def put(self):
+    #     # user = request.json
+    #     response = jsonify({})
+    #     response.status_code = 204
+    #     return response
 
-    def delete(self):
-        # id = request.args.get('id')
-        response = jsonify({})
-        response.status_code = 204
-        return response
+    # def delete(self):
+    #     # id = request.args.get('id')
+    #     response = jsonify({})
+    #     response.status_code = 204
+    #     return response
 
 
 class Event(Resource):
     def get(self, id):
+        res_dict = dict()
         #====TODO:login処理実装後変更====#
         # if logged_in:
         #   me = {}
@@ -87,79 +61,128 @@ class Event(Resource):
         me = None
         #====TODO:login処理実装後変更====#
 
-        #================properties===================#
+
+        #=============== i_event properties ==================#
+        # i_event by <event_id>:
+        #   event_id, event_name, start_date, end_date,
+        #   location, target_user, created_user_id,
+        #   participant_limit_num, (event_detail -> detail_comment)
+        #=============== i_event properties ==================#
+        # event = get_event(id)
+        event = db.session.query(iEvent).filter_by(event_id=id).one_or_none()
+        # print(event.__dict__)
+
+        # event_id なし
+        if event is None:
+            return ('', 400)
+
+
+        #=============== i_participate_event properties ==================#
         # i_participate_event by <event_id>:
         #   i_user by <user_id> if i_user.os_admin == True:
         #       { user_id: str, user_name: str, is_admin: bool }
-        #================properties===================#
-        event_register = get_admin_user(id)
+        # &
+        # i_participate_event by <event_id>:
+        #   i_user by <user_id> if i_user.os_admin == False:
+        #       [{ user_id: str, user_name: str, is_admin: bool }]
+        #=============== i_participate_event properties ==================#
+
+        # fields = [
+        #     'id',
+        #     'twitter_id']
+        # res = cls.query.options(
+        #     load_only(*fields)).filter_by(**{key: string}).one_or_none()
+
+        # TODO: N+1なのであとで直す
+        registered_user = None
+        attend_user_list = []
+        events_list = db.session.query(iParticipateEvent).filter_by(event_id=id).all()
+        for e in events_list:
+            user = db.session.query(iUser).filter_by(user_id=e.user_id).one_or_none()
+            if event.created_user_id == user.user_id:
+                if registered_user is not None:
+                    # registered_user 複数人!?
+                    abort(404)
+
+                registered_user = dict(
+                    user_id=user.user_id,
+                    user_name=user.user_name,
+                    is_admin=user.is_admin
+                )
+
+            attend_user_list += [dict(
+                user_id=user.user_id,
+                user_name=user.user_name,
+                is_admin=user.is_admin
+            )]
+
 
         # is_author
+        is_author = False
         if me is None:
             is_author = False
         else:
-            if me.id == event_register.user_id:
+            if me.id == registered_user.get('user_id'):
                 is_author = True
             else:
                 is_author = False
 
-        #================properties===================#
-        # i_participate_event by <event_id>:
-        #   i_user by <user_id> if i_user.os_admin == False:
-        #       [{ user_id: str, user_name: str, is_admin: bool }]
-        #================properties===================#
-        attend_users_list = get_attend_users(id)
-        attend_users_id_set = set([user.user_id for user in attend_users_list])
-
         # is_attend
-        #====ASK: is_author -> is_attend = True???====#
+        is_attend = False
         if is_author:
             is_attend = True
         else:
             if me is None:
                 is_author = False
             else:
-                if me.id in attend_users_id_set:
+                attend_user_ids_set = set([user.get('user_id') for user in attend_user_list])
+                if me.id in attend_user_ids_set:
                     is_author = True
                 else:
                     is_author = False
-        #====ASK: is_author -> is_attend = True???====#
-
-        #================properties===================#
-        # i_event by <event_id>:
-        #   event_id, event_name, start_date, end_date,
-        #   location, target_user, created_user_id,
-        #   participant_limit_num, (event_detail -> detail_comment)
-        #================properties===================#
-        event = get_event(id)
 
 
-        #================properties===================#
+        #=============== i_event_target_user_type properties ==================#
         # i_event_target_user_type by <event_id>:
         #   [target_user_type]
-        #================properties===================#
-        target_user_type = get_target_user_type(id)
+        #=============== i_event_target_user_type properties ==================#
+        target_user_type_row = db.session.query(iEventTargetUserType).filter_by(event_id=id).all()
+        target_user_type = [t.target_user_type_id for t in target_user_type_row]
 
 
-        #================properties===================#
+        #=============== i_event_tag properties ==================#
         # i_event_tag by <event_id>:
         #   [tag_id]
-        #================properties===================#
-        tag_list = get_tag_list_from_event_id(id)
+        #=============== i_event_tag properties ==================#
+        # tag_list = get_tag_list_from_event_id(id)
+        tag_row = db.session.query(iEventTag).filter_by(event_id=id).all()
+        tag_list = [t.tag_id for t in tag_row]
 
 
+        res_dic = dict(
+            event_id=event.event_id,
+            event_name=event.event_name,
+            start_date=event.get_start_date(),
+            end_date=event.get_end_date(),
+            location=event.location,
+            target_user_type=target_user_type,
+            target_user=event.target_user,
+            registered_user=registered_user,
+            participant_limit_num=event.participant_limit_num,
+            detail_comment=event.event_detail,
+            tag_list=tag_list,
+            attend_user_list=attend_user_list,
+            is_author=is_author,
+            is_attend=is_attend
+        )
 
-        target_user
-
-        # res_dic = dict(user_id=None)
-        response = jsonify({'user': user.get('name')})
+        response = jsonify(res_dic)
         response.status_code = 200
         return response
 
 
 
-
-api.add_resource(User, '/user')
+# api.add_resource(Test, '/event/<id>')
 api.add_resource(Event, '/event/<id>')
 
 

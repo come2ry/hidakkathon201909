@@ -8,12 +8,13 @@ services:
     depends_on:
       - app
     restart: always
+
   app:
     image: hidakkathon:python
     build: .
     volumes:
       - ./:/usr/src/app
-    command: python main.py
+    command: python -u main.py
     environment:
       DB_HOST: db
       DB_PORT: 3306
@@ -25,6 +26,7 @@ services:
     depends_on:
       - db
     restart: always
+
   db:
     image: mysql:5.7
     environment:

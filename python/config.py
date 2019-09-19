@@ -7,13 +7,18 @@ class DevelopmentConfig:
     DEBUG = True
     JSON_AS_ASCII = False
     API_SECRET_KEY = 'iU9GW39Ghs2Jh1Rq0n0Pn8AwIsiXnwB9'
-    db_user = os.getenv('MYSQL_USER', 'hidakkathon')
-    db_password = os.getenv('MYSQL_PASSWORD', 'hidakkathon')
-    db_name = os.getenv('MYSQL_DATABASE', 'sugori_rendez_vous')
+    # DB_HOST: db
+    #   DB_PORT: 3306
+    #   DB_NAME: sugori_rendez_vous
+    #   DB_USER: hidakkathon
+    #   DB_PASS: hidakkathon
 
-    host = '127.0.0.1'
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{}:{}@{}/{}?charset=utf8'.format(
-        db_user, db_password, host, db_name)
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{database}?charset=utf8'.format(**{
+        'user': os.getenv('DB_USER', 'hidakkathon'),
+        'password': os.getenv('DB_PASS', 'hidakkathon'),
+        'host': 'db',
+        'database': os.getenv('DB_NAME', 'sugori_rendez_vous'),
+    })
 
     SQLALCHEMY_POOL_RECYCLE = 90
     SQLALCHEMY_TRACK_MODIFICATIONS = False
