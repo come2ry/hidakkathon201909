@@ -8,6 +8,7 @@ services:
     depends_on:
       - app
     restart: always
+
   app:
     image: hidakkathon:python
     build: .
@@ -25,6 +26,7 @@ services:
     depends_on:
       - db
     restart: always
+
   db:
     image: mysql:5.7
     environment:

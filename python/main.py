@@ -13,8 +13,11 @@ from flask import Flask, abort, request, jsonify
 from flask_restful import Resource, Api
 from config import Config
 from __init__ import app, db
-from sqlalchemy import create_engine
-engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
+from models import *
+import logging
+# from sqlalchemy import create_engine
+
+# engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
 api = Api(app)
 
@@ -48,32 +51,31 @@ api = Api(app)
 #         print(row)
 
 
-class User(Resource):
-    def get(self):
-        id = request.args.get('id')
-        user = {'name': 'guest'}
-        # user = get_user(id)
-        response = jsonify({'user': user.get('name')})
+class Test(Resource):
+    def get(self, id):
+        events = db.session.query(mEventTag).filter(mEventTag.tag_id==id).all()
+        print(events)
+        response = jsonify({'user': str(events)})
         response.status_code = 200
         return response
 
-    def post(self):
-        # users.append(request.json)
-        response = jsonify({})
-        response.status_code = 204
-        return response
+    # def post(self, id):
+    #     # users.append(request.json)
+    #     response = jsonify({})
+    #     response.status_code = 204
+    #     return response
 
-    def put(self):
-        # user = request.json
-        response = jsonify({})
-        response.status_code = 204
-        return response
+    # def put(self):
+    #     # user = request.json
+    #     response = jsonify({})
+    #     response.status_code = 204
+    #     return response
 
-    def delete(self):
-        # id = request.args.get('id')
-        response = jsonify({})
-        response.status_code = 204
-        return response
+    # def delete(self):
+    #     # id = request.args.get('id')
+    #     response = jsonify({})
+    #     response.status_code = 204
+    #     return response
 
 
 class Event(Resource):
@@ -92,37 +94,37 @@ class Event(Resource):
         #   i_user by <user_id> if i_user.os_admin == True:
         #       { user_id: str, user_name: str, is_admin: bool }
         #================properties===================#
-        event_register = get_admin_user(id)
+        # event_register = get_admin_user(id)
 
         # is_author
-        if me is None:
-            is_author = False
-        else:
-            if me.id == event_register.user_id:
-                is_author = True
-            else:
-                is_author = False
+        # if me is None:
+        #     is_author = False
+        # else:
+        #     if me.id == event_register.user_id:
+        #         is_author = True
+        #     else:
+        #         is_author = False
 
         #================properties===================#
         # i_participate_event by <event_id>:
         #   i_user by <user_id> if i_user.os_admin == False:
         #       [{ user_id: str, user_name: str, is_admin: bool }]
         #================properties===================#
-        attend_users_list = get_attend_users(id)
-        attend_users_id_set = set([user.user_id for user in attend_users_list])
+        # attend_users_list = get_attend_users(id)
+        # attend_users_id_set = set([user.user_id for user in attend_users_list])
 
         # is_attend
         #====ASK: is_author -> is_attend = True???====#
-        if is_author:
-            is_attend = True
-        else:
-            if me is None:
-                is_author = False
-            else:
-                if me.id in attend_users_id_set:
-                    is_author = True
-                else:
-                    is_author = False
+        # if is_author:
+        #     is_attend = True
+        # else:
+        #     if me is None:
+        #         is_author = False
+        #     else:
+        #         if me.id in attend_users_id_set:
+        #             is_author = True
+        #         else:
+        #             is_author = False
         #====ASK: is_author -> is_attend = True???====#
 
         #================properties===================#
@@ -131,25 +133,22 @@ class Event(Resource):
         #   location, target_user, created_user_id,
         #   participant_limit_num, (event_detail -> detail_comment)
         #================properties===================#
-        event = get_event(id)
+        # event = get_event(id)
 
 
         #================properties===================#
         # i_event_target_user_type by <event_id>:
         #   [target_user_type]
         #================properties===================#
-        target_user_type = get_target_user_type(id)
+        # target_user_type = get_target_user_type(id)
 
 
         #================properties===================#
         # i_event_tag by <event_id>:
         #   [tag_id]
         #================properties===================#
-        tag_list = get_tag_list_from_event_id(id)
+        # tag_list = get_tag_list_from_event_id(id)
 
-
-
-        target_user
 
         # res_dic = dict(user_id=None)
         response = jsonify({'user': user.get('name')})
@@ -158,9 +157,8 @@ class Event(Resource):
 
 
 
-
-api.add_resource(User, '/user')
-api.add_resource(Event, '/event/<id>')
+api.add_resource(Test, '/event/<id>')
+# api.add_resource(Event, '/event/<id>')
 
 
 if __name__ == "__main__":

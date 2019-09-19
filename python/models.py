@@ -8,8 +8,9 @@ Base = declarative_base()
 class iEvent(db.Model):
     __tablename__ = 'i_event'
 
-    event_id_seq = db.Sequence('event_id_seq', metadata=Base.metadata, start=5001)
-    event_id = db.Column(db.BigInteger, event_id_seq, server_default=event_id_seq.next_value(), nullable=False, autoincrement=True, primary_key=True)
+    # event_id_seq = db.Sequence('event_id_seq', metadata=Base.metadata, start=5001)
+    # event_id = db.Column(db.BigInteger, event_id_seq, server_default=event_id_seq.next_value(), nullable=False, autoincrement=True, primary_key=True)
+    event_id = db.Column(db.BigInteger, nullable=False, autoincrement=True, primary_key=True)
     event_name = db.Column(db.String(128), nullable=False)
     start_date = db.Column(db.DateTime, nullable=False, default='0000-00-00 00:00:00')
     end_date = db.Column(db.DateTime, nullable=False, default='0000-00-00 00:00:00')
@@ -61,15 +62,17 @@ class iUser(db.Model):
 class mEventTag(db.Model):
     __tablename__ = 'm_event_tag'
 
-    tag_id_seq = db.Sequence('tag_id_seq', metadata=Base.metadata, start=1001)
-    tag_id = db.Column(db.BigInteger, tag_id_seq, server_default=tag_id_seq.next_value(), nullable=False, autoincrement=True, primary_key=True)
+    # tag_id_seq = db.Sequence('tag_id_seq', metadata=Base.metadata, start=1001)
+    # tag_id = db.Column(db.BigInteger, tag_id_seq, server_default=tag_id_seq.next_value(), nullable=False, autoincrement=True, primary_key=True)
+    tag_id = db.Column(db.BigInteger, nullable=False, autoincrement=True, primary_key=True)
     tag_name = db.Column(db.String(128), nullable=False)
 
 
 class mTargetUserType(db.Model):
     __tablename__ = 'm_target_user_type'
 
-    target_user_type_id_seq = db.Sequence('tag_id_seq', metadata=Base.metadata, start=11)
-    target_user_type_id = db.Column(db.Integer, target_user_type_id_seq, server_default=target_user_type_id_seq.next_value(), nullable=False, autoincrement=True, primary_key=True)
+    # target_user_type_id_seq = db.Sequence('tag_id_seq', metadata=Base.metadata, start=11)
+    # target_user_type_id = db.Column(db.Integer, target_user_type_id_seq, server_default=target_user_type_id_seq.next_value(), nullable=False, autoincrement=True, primary_key=True)
+    target_user_type_id = db.Column(db.Integer, nullable=False, autoincrement=True, primary_key=True)
     target_user_type_name = db.Column(db.String(32), nullable=False)
     color_code = db.Column(db.String(64), nullable=False)
