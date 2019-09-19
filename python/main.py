@@ -9,7 +9,7 @@
 #     app.run(debug=True, host='0.0.0.0', port=8080)
 
 # coding: utf-8
-from flask import Flask, abort, request, jsonify, abort
+from flask import Flask, abort, request, jsonify, abort, make_response
 from flask_restful import Resource, Api
 from config import Config
 from __init__ import app, db
@@ -74,7 +74,8 @@ class Event(Resource):
 
         # event_id なし
         if event is None:
-            return '', 400
+            response = make_response("", 400)
+            return response
 
 
         #=============== i_participate_event properties ==================#
@@ -189,7 +190,7 @@ class Event(Resource):
 
 class Image(Resource):
     def get(self, event_id):
-        return ('', 200)
+        return '', 200
 
 
 # api.add_resource(Test, '/event/<id>')
