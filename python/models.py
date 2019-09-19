@@ -16,7 +16,7 @@ class iEvent(db.Model):
     location = db.Column(db.String(128), nullable=True)
     target_user =  db.Column(db.String(128), nullable=True)
     created_user_id = db.Column(db.String(128), nullable=False)
-    participant_limit_num = db.Column(db.Integer(10, unsigned=True), nullable=False)
+    participant_limit_num = db.Column(db.Integer, nullable=False)
     event_detail = db.Column(db.Text)
 
 
@@ -30,15 +30,15 @@ class iEventImage(db.Model):
 class iEventTag(db.Model):
     __tablename__ = 'i_event_tag'
 
-    event_id = db.Column(db.BigInteger(20, unsigned=True), nullable=False, primary_key=True)
-    tag_id = db.Column(db.Integer(10, unsigned=True), nullable=False, primary_key=True)
+    event_id = db.Column(db.BigInteger, nullable=False, primary_key=True)
+    tag_id = db.Column(db.Integer, nullable=False, primary_key=True)
 
 
 class iEventTargetUserType(db.Model):
     __tablename__ = 'i_event_target_user_type'
 
     event_id = db.Column(db.BigInteger, nullable=False, primary_key=True)
-    target_user_type_id = db.Column(db.Integer(10, unsigned=True), nullable=False, primary_key=True)
+    target_user_type_id = db.Column(db.Integer, nullable=False, primary_key=True)
 
 
 class iParticipateEvent(db.Model):
@@ -55,7 +55,7 @@ class iUser(db.Model):
     user_name = db.Column(db.String(128), nullable=True)
     password = db.Column(db.String(128), nullable=False)
     user_comment = db.Column(db.Text, nullable=False)
-    is_admin = db.Column(db.Integer(1), nullable=False) # tinyint
+    is_admin = db.Column(db.Integer, nullable=False) # tinyint
 
 
 class mEventTag(db.Model):
