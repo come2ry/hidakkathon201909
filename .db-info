@@ -1,0 +1,5 @@
+export DB_HOST=localhost
+export DB_PORT=3306
+export DB_NAME=sugori_rendez_vous
+export DB_USER=hidakkathon
+export DB_PASS=hidakkathon

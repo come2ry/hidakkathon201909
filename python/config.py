@@ -13,10 +13,11 @@ class DevelopmentConfig:
     #   DB_USER: hidakkathon
     #   DB_PASS: hidakkathon
 
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}/{database}?charset=utf8'.format(**{
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset=utf8'.format(**{
         'user': os.getenv('DB_USER', 'hidakkathon'),
         'password': os.getenv('DB_PASS', 'hidakkathon'),
-        'host': 'db',
+        'host': os.getenv('DB_HOST', 'db'),
+        'port': os.getenv('DB_PORT', '3306'),
         'database': os.getenv('DB_NAME', 'sugori_rendez_vous'),
     })
 
