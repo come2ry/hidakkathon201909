@@ -74,7 +74,7 @@ class Event(Resource):
 
         # event_id なし
         if event is None:
-            return ('', 400)
+            return '', 400
 
 
         #=============== i_participate_event properties ==================#
@@ -186,6 +186,10 @@ class Event(Resource):
         response.status_code = 200
         return response
 
+
+class Image(Resource):
+    def get(self, event_id):
+        return ('', 200)
 
 
 # api.add_resource(Test, '/event/<id>')
