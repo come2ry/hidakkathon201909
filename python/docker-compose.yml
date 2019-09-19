@@ -11,6 +11,8 @@ services:
   app:
     image: hidakkathon:python
     build: .
+    volumes:
+      - ./:/usr/src/app
     command: python main.py
     environment:
       DB_HOST: db
