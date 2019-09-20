@@ -438,7 +438,8 @@ class EventAttend(Resource):
             detail_comment=event.event_detail,
             tag_list=tag_list,
             attend_user_list=attend_user_list,
-            is_author=is_author
+            is_author=is_author,
+            participant_limit_num=event.participant_limit_num
         )
 
         response = jsonify(res_dic)
