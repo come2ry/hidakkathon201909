@@ -147,7 +147,10 @@ class Event(Resource):
 
         # json_data = request.get_json(force=True)
         form_data = request.form
-        json_data = dict([(k, v) for k, v in form_data.items()])
+        if request.form is None:
+            json_data = request.json(force=True)
+        else:
+            json_data = dict([(k, v) for k, v in form_data.items()])
 
         event_name = json_data.get('event_name')
         start_date = json_data.get('start_date')
@@ -225,7 +228,10 @@ class Event(Resource):
             return response
 
         form_data = request.form
-        json_data = dict([(k, v) for k, v in form_data.items()])
+        if request.form is None:
+            json_data = request.json(force=True)
+        else:
+            json_data = dict([(k, v) for k, v in form_data.items()])
         event_name = json_data.get('event_name')
         start_date = json_data.get('start_date')
         start_date = datetime.strptime(start_date, '%Y-%m-%d %H:%M')
@@ -333,7 +339,10 @@ class EventCancel(Resource):
             return response
 
         form_data = request.form
-        json_data = dict([(k, v) for k, v in form_data.items()])
+        if request.form is None:
+            json_data = request.json(force=True)
+        else:
+            json_data = dict([(k, v) for k, v in form_data.items()])
         event_id = json_data.get('event_id')
 
         event = db.session.query(iEvent).filter_by(event_id=event_id).one_or_none()
@@ -368,7 +377,10 @@ class EventAttend(Resource):
             return response
 
         form_data = request.form
-        json_data = dict([(k, v) for k, v in form_data.items()])
+        if request.form is None:
+            json_data = request.json(force=True)
+        else:
+            json_data = dict([(k, v) for k, v in form_data.items()])
         event_id = json_data.get('event_id')
 
         event = db.session.query(iEvent).filter_by(event_id=event_id).one_or_none()
@@ -445,10 +457,34 @@ class EventRecommend(Resource):
         _particaipate_event = db.session.query(iParticipateEvent).filter_by(user_id=me.user_id).order_by(iEvent.start_date.asc()).all()
 
         past_events = []
-        future_events = []
+        future_events = {}
 
         for p_event in _particaipate_event:
             e = p_event.event
             now = datetime.now()
             if e.start_date < now:
-                my_tag_value_dict.get()
+                tag_list = [t.tag_id for t in e.tag_list]
+                past_events += [tag_list]
+            else:
+                future_events[e.event_id] = [tag_list]
+
+        for p_tag in past_events:
+            for t in p_tag:
+                if my_tag_value_dict.get(t, None) is None:
+                    my_tag_value_dict[t] = 1/len(tag_list)
+                else:
+                    my_tag_value_dict[t] += 1/len(tag_list)
+
+        _event_info_list = []
+        for f_e_id, f_tag_list in future_events.items():
+            sum_ = 0
+            for f_t in f_tag_list:
+                v = my_tag_value_dict.get(f_t, 0)
+                sum_ += v
+
+            score = sum_/len(f_tag_list)
+            _event_info_list += [(f_e_id, score)]
+
+        _event_info_list.sort(key=lambda x: -x[1])
+        print(_event_info_list)
+        return make_response("", 200)

@@ -138,7 +138,10 @@ class User(Resource):
             return response
 
         form_data = request.form
-        json_data = dict([(k, v) for k, v in form_data.items()])
+        if request.form is None:
+            json_data = request.json(force=True)
+        else:
+            json_data = dict([(k, v) for k, v in form_data.items()])
         user_name = json_data.get('user_name', '')
         user_comment = json_data.get('user_comment', '')
 
@@ -212,6 +215,7 @@ class Image(Resource):
 api.add_resource(Event, '/event/<id>', '/event')
 api.add_resource(EventCancel, '/event/cancel')
 api.add_resource(EventAttend, '/event/attend')
+api.add_resource(EventRecommend, '/event/recommend')
 api.add_resource(Image, '/event/image/<id>')
 api.add_resource(Top, '/top')
 api.add_resource(User, '/user')
