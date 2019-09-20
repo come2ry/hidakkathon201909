@@ -494,18 +494,18 @@ class EventRecommend(Resource):
 
         for p_tag in past_events:
             for t in p_tag:
-                if my_tag_value_dict.get(t, None) is None:
-                    my_tag_value_dict[t] = 1/len(p_tag)
+                if my_tag_value_dict.get(int(t), None) is None:
+                    my_tag_value_dict[int(t)] = 1/len(p_tag)
                 else:
-                    my_tag_value_dict[t] += 1/len(p_tag)
+                    my_tag_value_dict[int(t)] += 1/len(p_tag)
 
         _event_info_list = []
         for f_e_id, f_tag_list in future_events.items():
-            sum_ = 0
             if len(f_tag_list) == 0:
                 continue
+            sum_ = 0
             for f_t in f_tag_list:
-                v = my_tag_value_dict.get(f_t, 0)
+                v = my_tag_value_dict.get(int(f_t), 0)
                 sum_ += v
 
             score = sum_/len(f_tag_list)
