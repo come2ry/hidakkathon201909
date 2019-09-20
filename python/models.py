@@ -75,6 +75,9 @@ class iUser(db.Model):
     user_comment = db.Column(db.Text, nullable=False)
     is_admin = db.Column(db.Integer, nullable=False) # tinyint
 
+    def __repr__(self):
+        return f'<iUser {self.user_id}>'
+
 
 class mEventTag(db.Model):
     __tablename__ = 'm_event_tag'
