@@ -388,16 +388,22 @@ class EventAttend(Resource):
 
         attend_user_list = []
         for u in event.users_list:
-            print(u, u.user)
+            user = db.session.query(iUser).filter_by(user_id=u.user_id).one_or_none()
+            if user.user_id == event.created_user_id:
+                registered_user = dict(
+                    user_id=user.user_id,
+                    user_name=user.user_name,
+                    is_admin=True if user.is_admin else False
+                )
             attend_user_list += [dict(
                 user_id=u.user_id,
-                user_name=u.user.user_name,
-                is_admin=u.user.is_admin
+                user_name=user.user_name,
+                is_admin=True if user.is_admin else False
             )]
 
         is_author = True if event.created_user_id == me.user_id else False
 
-        res_dis = dict(
+        res_dic = dict(
             event_id=event_id,
             event_name=event.event_name,
             start_date=event.get_start_date(),
@@ -405,7 +411,7 @@ class EventAttend(Resource):
             location=event.location,
             target_user_type=target_user_type,
             target_user=event.target_user,
-            registered_user=event.registered_user,
+            registered_user=registered_user,
             detail_comment=event.event_detail,
             tag_list=tag_list,
             attend_user_list=attend_user_list,
