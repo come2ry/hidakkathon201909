@@ -501,9 +501,12 @@ class EventRecommend(Resource):
             score = sum_/len(f_tag_list)
             _event_info_list += [(f_e_id, score)]
 
-        _event_info_list.sort(key=lambda x: -x[1])[:10]
+        _event_info_list.sort(key=lambda x: -x[1])
 
-
+        if _event_info_list is None:
+            _event_info_list = []
+        else:
+            _event_info_list = _event_info_list[:10]
         _target_user_type_list = db.session.query(mTargetUserType).order_by(mTargetUserType.target_user_type_id.asc()).all()
 
         color_code_dict = dict([(t.target_user_type_id, t.color_code) for t in _target_user_type_list])
