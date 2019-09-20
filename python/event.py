@@ -238,7 +238,7 @@ class Event(Resource):
         location = json_data.get('location', '')
         target_user_type = json_data.get('target_user_type', '') # 更新必須
         target_user = json_data.get('target_user', '')
-        participant_limit_num = json_data.get('participant_limit_num')
+        participant_limit_num = int(json_data.get('participant_limit_num'))
         image_binary = json_data.get('image_binary', None)
         detail_comment = json_data.get('detail_comment', '')
         tag_list = json_data.get('tag_list', '') # 更新必須
