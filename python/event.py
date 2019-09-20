@@ -244,6 +244,8 @@ class Event(Resource):
         tag_list = json_data.get('tag_list', '') # 更新必須
         event_id = int(json_data.get('event_id'))
 
+
+
         if participant_limit_num < 1 or event_name == '' or start_date == '' or end_date == '' or target_user_type == '':
             response = make_response("", 400)
             return response
@@ -261,7 +263,10 @@ class Event(Resource):
         _tag_list = db.session.query(mEventTag).all()
         exists_tag_list = [int(t.tag_id) for t in _tag_list]
 
-        tag_list = list(map(int, tag_list.split(',')))
+        if tag_list == '':
+            tag_list = []
+        else:
+            tag_list = list(map(int, tag_list.split(',')))
         for t in tag_list:
             if t not in exists_tag_list:
                 response = make_response("", 400)
