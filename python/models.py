@@ -1,6 +1,7 @@
 from datetime import datetime
 from __init__ import db
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import backref
 import logging
 
 Base = declarative_base()
@@ -20,7 +21,7 @@ class iEvent(db.Model):
     created_user_id = db.Column(db.String(128), nullable=False)
     participant_limit_num = db.Column(db.Integer, nullable=False)
     event_detail = db.Column(db.Text)
-    target_user_type_list = db.relationship("iEventTargetUserType", cascade="all, delete, delete-orphan", primaryjoin="iEvent.event_id == iEventTargetUserType.event_id", uselist=True, lazy="joined")
+    target_user_type_list = db.relationship("iEventTargetUserType", order_by="iEventTargetUserType.target_user_type_id.asc()", cascade="all, delete, delete-orphan", primaryjoin="iEvent.event_id == iEventTargetUserType.event_id", uselist=True, lazy="joined")
     tag_list = db.relationship("iEventTag", cascade="all, delete, delete-orphan", primaryjoin="iEvent.event_id == iEventTag.event_id", uselist=True, lazy="joined")
     users_list = db.relationship("iParticipateEvent", cascade="all, delete, delete-orphan", primaryjoin="iEvent.event_id == iParticipateEvent.event_id", uselist=True, lazy="joined")
 
@@ -62,6 +63,7 @@ class iParticipateEvent(db.Model):
     event_id = db.Column(db.BigInteger, db.ForeignKey('i_event.event_id', onupdate="CASCADE", ondelete="CASCADE"), nullable=False, primary_key=True)
     user_id = db.Column(db.String(128), nullable=False, primary_key=True)
     event = db.relationship("iEvent", primaryjoin="iEvent.event_id == iParticipateEvent.event_id", lazy="joined")
+    # user = db.relationship("iUser", cascade="all, delete, delete-orphan", primaryjoin="iUser.user_id == iParticipateEvent.user_id", lazy="joined")
 
 
 class iUser(db.Model):

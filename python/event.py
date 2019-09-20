@@ -315,7 +315,7 @@ class Event(Resource):
         response = make_response("", 200)
         return response
 
-
+# API09
 class EventCancel(Resource):
     def post(self):
         # sessionからget
@@ -347,4 +347,71 @@ class EventCancel(Resource):
         event.users_list = new_users_list
         db.session.commit()
         response = make_response("", 200)
+        return response
+
+# API08
+class EventAttend(Resource):
+    def post(self):
+        # sessionからget
+        me = get_user()
+        if me is None:
+            response = make_response("", 401)
+            return response
+
+        json_data = request.get_json(force=True)
+        event_id = json_data.get('event_id')
+
+        event = db.session.query(iEvent).filter_by(event_id=event_id).one_or_none()
+        if event is None:
+            response = make_response("", 400)
+            return response
+
+        attend_user_id_list = [u.user_id for u in event.users_list]
+        if me.user_id in attend_user_id_list:
+            response = jsonify({"message":"既にイベントに参加しています。"})
+            response.status_code = 200
+            return response
+
+        if event.participant_limit_num < len(event.users_list)+1:
+            response = jsonify({"message":"イベントの定員に達しています。"})
+            response.status_code = 200
+            return response
+
+        event.users_list += [iParticipateEvent(**dict(
+            event_id=event_id,
+            user_id=me.user_id
+        ))]
+        db.session.commit()
+
+        target_user_type = [target.target_user_type_id for target in event.target_user_type_list]
+        tag_list = [tag.tag_id for tag in event.tag_list]
+
+        attend_user_list = []
+        for u in event.users_list:
+            print(u, u.user)
+            attend_user_list += [dict(
+                user_id=u.user_id,
+                user_name=u.user.user_name,
+                is_admin=u.user.is_admin
+            )]
+
+        is_author = True if event.created_user_id == me.user_id else False
+
+        res_dis = dict(
+            event_id=event_id,
+            event_name=event.event_name,
+            start_date=event.get_start_date(),
+            end_date=event.get_end_date(),
+            location=event.location,
+            target_user_type=target_user_type,
+            target_user=event.target_user,
+            registered_user=event.registered_user,
+            detail_comment=event.event_detail,
+            tag_list=tag_list,
+            attend_user_list=attend_user_list,
+            is_author=is_author
+        )
+
+        response = jsonify(res_dic)
+        response.status_code = 200
         return response

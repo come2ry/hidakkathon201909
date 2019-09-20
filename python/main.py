@@ -206,6 +206,7 @@ class Image(Resource):
 # api.add_resource(Test, '/event/<id>')
 api.add_resource(Event, '/event/<id>', '/event')
 api.add_resource(EventCancel, '/event/cancel')
+api.add_resource(EventAttend, '/event/attend')
 api.add_resource(Image, '/event/image/<id>')
 api.add_resource(Top, '/top')
 api.add_resource(User, '/user')
