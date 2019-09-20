@@ -194,12 +194,13 @@ class Event(Resource):
 
         event = iEvent(**args)
         db.session.add(event)
+        db.session.commit()
+
         if image_binary is not None:
             # TODO:ここはわからん
-            event_image = iEventImage(dict(event_id=event.event_id, image_binary=image_binary))
+            event_image = iEventImage(**dict(event_id=event.event_id, img_binary=image_binary.encode()))
             db.session.add(event_image)
 
-        db.session.commit()
 
         tag_list = list(map(int, tag_list.split(',')))
         event_tag_list = []
