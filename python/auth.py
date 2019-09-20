@@ -60,9 +60,16 @@ class Login(Resource):
 
 class Logout(Resource):
     def post(self):
-        if not session.get('is_loggedin', False):
+        # sessionからget
+        me = get_user()
+        if me is None:
             response = make_response("", 401)
             return response
+        # if not session.get('is_loggedin', False):
+        #     print(64, session.get('is_loggedin', False))
+        #     print(session.__dict__)
+        #     response = make_response("", 401)
+        #     return response
 
         clear_session()
         response = make_response("", 200)

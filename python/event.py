@@ -258,7 +258,7 @@ class Event(Resource):
 
 
         event = db.session.query(iEvent).filter_by(event_id=event_id).one_or_none()
-        print(event.__dict__)
+        # print(event.__dict__)
         if event is None:
             response = make_response("", 400)
             return response

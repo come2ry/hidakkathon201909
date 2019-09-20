@@ -58,7 +58,7 @@ class Top(Resource):
             if len(e.target_user_type_list) <= 1:
                 color_code = color_code_dict[e.target_user_type_list[0].target_user_type_id]
 
-            print(e.target_user_type_list, color_code)
+            # print(e.target_user_type_list, color_code)
 
             event_info_list += [dict(
                 event_id=e.event_id,
