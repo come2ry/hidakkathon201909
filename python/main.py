@@ -41,7 +41,7 @@ class Top(Resource):
         # print(target_year, target_month)
 
         # _, lastday = calendar.monthrange(a.year,a.month)
-        events = db.session.query(iEvent).filter(func.extract('year', iEvent.start_date) == target_year, func.extract('month', iEvent.start_date) == target_month).all()
+        events = db.session.query(iEvent).filter(func.extract('year', iEvent.start_date) == target_year, func.extract('month', iEvent.start_date) == target_month).order_by(iEvent.event_id.asc()).all()
         # print(events)
 
         tag_list = db.session.query(mEventTag).order_by(mEventTag.tag_id.asc()).all()
