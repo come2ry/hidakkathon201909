@@ -72,7 +72,10 @@ class Top(Resource):
         res_dic = dict(
             event_info_list=event_info_list,
             tag_list=tag_list,
-            target_user_type_list=target_user_type_list
+            target_user_type_list=target_user_type_list,
+            user_id=me.user_id,
+            user_name=me.user_name,
+            is_admin=True if me.is_admin else False
         )
 
         if me is not None:
