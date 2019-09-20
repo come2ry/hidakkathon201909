@@ -103,7 +103,7 @@ class Admin(Resource):
         user.user_comment = user_comment
         if password is not None:
             user.password = password
-        user.is_admin = is_admin
+        user.is_admin = 1 if is_admin else 0
 
         db.session.commit()
 
