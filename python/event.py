@@ -85,17 +85,14 @@ class Event(Resource):
 
         # is_attend
         is_attend = False
-        if is_author:
-            is_attend = True
+        if me is None:
+            is_attend = False
         else:
-            if me is None:
-                is_author = False
+            attend_user_ids_set = set([user.get('user_id') for user in attend_user_list])
+            if me.user_id in attend_user_ids_set:
+                is_attend = True
             else:
-                attend_user_ids_set = set([user.get('user_id') for user in attend_user_list])
-                if me.user_id in attend_user_ids_set:
-                    is_author = True
-                else:
-                    is_author = False
+                is_attend = False
 
 
         #=============== i_event_target_user_type properties ==================#
@@ -410,6 +407,7 @@ class EventAttend(Resource):
         tag_list = [tag.tag_id for tag in event.tag_list]
 
         attend_user_list = []
+        registered_user = None
         for u in event.users_list:
             user = db.session.query(iUser).filter_by(user_id=u.user_id).one_or_none()
             if user.user_id == event.created_user_id:
@@ -423,6 +421,11 @@ class EventAttend(Resource):
                 user_name=user.user_name,
                 is_admin=True if user.is_admin else False
             )]
+
+        if registered_user is None:
+            # TODO
+            # db.session.query(iUser).filter_by(user_id=event.created_user_id).
+            pass
 
         is_author = True if event.created_user_id == me.user_id else False
 
