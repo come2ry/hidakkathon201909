@@ -234,7 +234,7 @@ class Event(Resource):
         event_id = int(json_data.get('event_id'))
 
         if participant_limit_num < 1 or event_name == '' or start_date == '' or end_date == '' or target_user_type == '':
-            response = make_response("", 400)
+            response = make_response("237", 400)
             return response
 
 
@@ -244,7 +244,7 @@ class Event(Resource):
         target_list = list(map(int, target_user_type.split(',')))
         for t in target_list:
             if t not in target_user_type_list:
-                response = make_response("", 400)
+                response = make_response("247", 400)
                 return response
 
         _tag_list = db.session.query(mEventTag).all()
@@ -253,17 +253,17 @@ class Event(Resource):
         tag_list = list(map(int, tag_list.split(',')))
         for t in tag_list:
             if t not in exists_tag_list:
-                response = make_response("", 400)
+                response = make_response("256", 400)
                 return response
 
 
         event = db.session.query(iEvent).filter_by(event_id=event_id).one_or_none()
         # print(event.__dict__)
         if event is None:
-            response = make_response("", 400)
+            response = make_response("263", 400)
             return response
         if event.created_user_id != me.user_id:
-            response = make_response("", 403)
+            response = make_response("266", 403)
             return response
 
         event.event_name = event_name
