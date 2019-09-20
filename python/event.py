@@ -477,7 +477,7 @@ class EventRecommend(Resource):
         for p_event in _particaipate_event:
             e = p_event.event
             now = datetime.now()
-            tag_list = [t.tag_id for t in e.tag_list]
+            tag_list = [(t.tag_id, t.event_id) for t in e.tag_list]
             if e.end_date < now:
                 past_events += [tag_list]
             else:
@@ -485,6 +485,9 @@ class EventRecommend(Resource):
                 if e.start_date < now:
                     continue
                 future_events[e.event_id] = tag_list
+
+        app.logger.warn('489', future_events, past_events)
+        return make_response("", 200)
 
         for p_tag in past_events:
             for t in p_tag:
@@ -506,8 +509,10 @@ class EventRecommend(Resource):
             _event_info_list += [(f_e_id, score)]
 
         _event_info_list.sort(key=lambda x: -x[1]*1000000+x[1])
+        app.logger.warn('511', _event_info_list)
 
         if _event_info_list is None:
+            app.logger.warn('513', _event_info_list)
             _event_info_list = []
 
         _target_user_type_list = db.session.query(mTargetUserType).order_by(mTargetUserType.target_user_type_id.asc()).all()
@@ -533,7 +538,7 @@ class EventRecommend(Resource):
             )]
 
         event_info_list = event_info_list[:10]
-        print('event_info_list', event_info_list)
+        app.logger.warn('event_info_list', event_info_list)
         response = jsonify(dict(event_info_list=event_info_list))
         response.status_code = 200
         return response
