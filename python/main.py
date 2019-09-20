@@ -133,7 +133,8 @@ class User(Resource):
             response = make_response("", 401)
             return response
 
-        json_data = request.get_json(force=True)
+        form_data = request.form
+        json_data = dict([(k, v) for k, v in form_data.items()])
         user_name = json_data.get('user_name', '')
         user_comment = json_data.get('user_comment', '')
 

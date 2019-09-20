@@ -35,7 +35,8 @@ def get_user():
 
 class Login(Resource):
     def post(self):
-        json_data = request.get_json(force=True)
+        form_data = request.form
+        json_data = dict([(k, v) for k, v in form_data.items()])
         user_id = json_data.get('user_id')
         password = json_data.get('password')
 

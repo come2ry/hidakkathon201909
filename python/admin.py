@@ -45,7 +45,8 @@ class Admin(Resource):
             response = make_response("", 403)
             return response
 
-        json_data = request.get_json(force=True)
+        form_data = request.form
+        json_data = dict([(k, v) for k, v in form_data.items()])
         user_id = json_data.get('user_id')
         user_name = json_data.get('user_name', '')
         user_comment = json_data.get('user_comment', '')
@@ -78,7 +79,8 @@ class Admin(Resource):
             response = make_response("", 403)
             return response
 
-        json_data = request.get_json(force=True)
+        form_data = request.form
+        json_data = dict([(k, v) for k, v in form_data.items()])
         user_id = json_data.get('user_id')
         user_name = json_data.get('user_name', '')
         user_comment = json_data.get('user_comment', '')
@@ -163,7 +165,8 @@ class AdminTag(Resource):
             response = make_response("", 403)
             return response
 
-        json_data = request.get_json(force=True)
+        form_data = request.form
+        json_data = dict([(k, v) for k, v in form_data.items()])
         tag_name = json_data.get('tag_name')
 
         tag = db.session.query(mEventTag).filter_by(tag_name=tag_name).one_or_none()
@@ -241,7 +244,8 @@ class AdminTargetType(Resource):
             response = make_response("", 403)
             return response
 
-        json_data = request.get_json(force=True)
+        form_data = request.form
+        json_data = dict([(k, v) for k, v in form_data.items()])
         target_user_type_name = json_data.get('target_user_type_name')
         color_code = json_data.get('color_code')
 
@@ -273,7 +277,8 @@ class AdminTargetType(Resource):
             response = make_response("", 403)
             return response
 
-        json_data = request.get_json(force=True)
+        form_data = request.form
+        json_data = dict([(k, v) for k, v in form_data.items()])
         target_user_type_id = json_data.get('target_user_type_id')
         target_user_type_name = json_data.get('target_user_type_name')
         color_code = json_data.get('color_code')

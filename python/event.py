@@ -145,7 +145,10 @@ class Event(Resource):
             response = make_response("", 401)
             return response
 
-        json_data = request.get_json(force=True)
+        # json_data = request.get_json(force=True)
+        form_data = request.form
+        json_data = dict([(k, v) for k, v in form_data.items()])
+
         event_name = json_data.get('event_name')
         start_date = json_data.get('start_date')
         start_date = datetime.strptime(start_date, '%Y-%m-%d %H:%M')
@@ -154,10 +157,11 @@ class Event(Resource):
         location = json_data.get('location', '')
         target_user_type = json_data.get('target_user_type', '')
         target_user = json_data.get('target_user', '')
-        participant_limit_num = json_data.get('participant_limit_num')
+        participant_limit_num = int(json_data.get('participant_limit_num'))
         image_binary = json_data.get('image_binary', None)
         detail_comment = json_data.get('detail_comment', '')
         tag_list = json_data.get('tag_list', '')
+
 
         if participant_limit_num < 1 or event_name == '' or start_date == '' or end_date == '' or target_user_type == '':
             response = make_response("", 400)
@@ -184,12 +188,14 @@ class Event(Resource):
             event_detail=detail_comment,
         )
 
-        if image_binary is not None:
-            # TODO:ここはわからん
-            args['image_binary'] = image_binary
 
         event = iEvent(**args)
         db.session.add(event)
+        if image_binary is not None:
+            # TODO:ここはわからん
+            event_image = iEventImage(dict(event_id=event.event_id, image_binary=image_binary))
+            db.session.add(event_image)
+
         db.session.commit()
 
         tag_list = list(map(int, tag_list.split(',')))
@@ -218,7 +224,8 @@ class Event(Resource):
             response = make_response("", 401)
             return response
 
-        json_data = request.get_json(force=True)
+        form_data = request.form
+        json_data = dict([(k, v) for k, v in form_data.items()])
         event_name = json_data.get('event_name')
         start_date = json_data.get('start_date')
         start_date = datetime.strptime(start_date, '%Y-%m-%d %H:%M')
@@ -274,7 +281,8 @@ class Event(Resource):
         event.participant_limit_num = participant_limit_num
         if image_binary is not None:
             # TODO:ここはわからん
-            event.image_binary = base64.b64decode(image_binary)
+            event_image = db.session.query(iEventImage).filter_by(event_id=event.event_id).one_or_none()
+            event_image.image_binary = base64.b64decode(image_binary)
         event.event_detail = detail_comment
 
         target_user_type_list = []
@@ -324,7 +332,8 @@ class EventCancel(Resource):
             response = make_response("", 401)
             return response
 
-        json_data = request.get_json(force=True)
+        form_data = request.form
+        json_data = dict([(k, v) for k, v in form_data.items()])
         event_id = json_data.get('event_id')
 
         event = db.session.query(iEvent).filter_by(event_id=event_id).one_or_none()
@@ -358,7 +367,8 @@ class EventAttend(Resource):
             response = make_response("", 401)
             return response
 
-        json_data = request.get_json(force=True)
+        form_data = request.form
+        json_data = dict([(k, v) for k, v in form_data.items()])
         event_id = json_data.get('event_id')
 
         event = db.session.query(iEvent).filter_by(event_id=event_id).one_or_none()
@@ -421,3 +431,24 @@ class EventAttend(Resource):
         response = jsonify(res_dic)
         response.status_code = 200
         return response
+
+
+class EventRecommend(Resource):
+    def get(self):
+        # sessionからget
+        me = get_user()
+        if me is None:
+            response = make_response("", 401)
+            return response
+
+        my_tag_value_dict = {}
+        _particaipate_event = db.session.query(iParticipateEvent).filter_by(user_id=me.user_id).order_by(iEvent.start_date.asc()).all()
+
+        past_events = []
+        future_events = []
+
+        for p_event in _particaipate_event:
+            e = p_event.event
+            now = datetime.now()
+            if e.start_date < now:
+                my_tag_value_dict.get()
