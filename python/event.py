@@ -473,21 +473,24 @@ class EventRecommend(Resource):
         _particaipate_event = db.session.query(iParticipateEvent).filter_by(user_id=me.user_id).all()
 
         past_events = []
+        _past_events = []
         future_events = {}
         for p_event in _particaipate_event:
             e = p_event.event
             now = datetime.now()
+            _tag_list = [(t.tag_id, t.event_id) for t in e.tag_list]
             tag_list = [(t.tag_id, t.event_id) for t in e.tag_list]
             if e.end_date < now:
                 past_events += [tag_list]
+                _past_events += [_tag_list]
             else:
                 # TODO: 参加中は評価に含めるか
                 if e.start_date < now:
                     continue
                 future_events[e.event_id] = tag_list
 
-        app.logger.warn('489', future_events, past_events)
-        return make_response("", 200)
+        app.logger.warn('489', future_events, _past_events)
+        # return make_response("", 200)
 
         for p_tag in past_events:
             for t in p_tag:
