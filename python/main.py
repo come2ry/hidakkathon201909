@@ -73,15 +73,16 @@ class Top(Resource):
             event_info_list=event_info_list,
             tag_list=tag_list,
             target_user_type_list=target_user_type_list,
-            user_id=me.user_id,
-            user_name=me.user_name,
-            is_admin=True if me.is_admin else False
         )
 
         if me is not None:
             res_dic['user_id'] = me.user_id
             res_dic['user_name'] = me.user_name
             res_dic['is_admin'] = me.is_admin
+        else:
+            res_dic['user_id'] = ""
+            res_dic['user_name'] = "".user_name
+            res_dic['is_admin'] = False
 
         response = jsonify(res_dic)
         response.status_code = 200
