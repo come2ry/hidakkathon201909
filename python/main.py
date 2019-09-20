@@ -121,7 +121,7 @@ class User(Resource):
             )]
 
         res_dic = dict(
-            user_name=me.user_name,
+            user_name=user.user_name,
             user_comment=user.user_comment,
             event_info_list=event_info_list
         )
