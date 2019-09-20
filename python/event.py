@@ -423,9 +423,13 @@ class EventAttend(Resource):
             )]
 
         if registered_user is None:
-            # TODO
-            # db.session.query(iUser).filter_by(user_id=event.created_user_id).
-            pass
+            _user = db.session.query(iUser).filter_by(user_id=event.created_user_id).one_or_none()
+            registered_user = dict(
+                user_id=_user.user_id,
+                user_name=_user.user_name,
+                is_admin=True if _user.is_admin else False
+            )
+
 
         is_author = True if event.created_user_id == me.user_id else False
 
