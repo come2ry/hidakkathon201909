@@ -61,7 +61,7 @@ class Admin(Resource):
             user_name=user_name,
             user_comment=user_comment,
             password=password,
-            is_admin=True if is_admin else False
+            is_admin=1 if is_admin else 0
         ))
 
         db.session.add(user)
