@@ -54,14 +54,14 @@ class Admin(Resource):
         user_name = json_data.get('user_name', '')
         user_comment = json_data.get('user_comment', '')
         password = json_data.get('password', '')
-        is_admin = json_data.get('is_admin', 0)
+        is_admin = int(json_data.get('is_admin', 0))
 
         user = iUser(**dict(
             user_id=user_id,
             user_name=user_name,
             user_comment=user_comment,
             password=password,
-            is_admin=1 if is_admin else 0
+            is_admin=True if is_admin else False
         ))
 
         db.session.add(user)
