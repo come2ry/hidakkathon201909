@@ -81,7 +81,7 @@ class Top(Resource):
             res_dic['is_admin'] = me.is_admin
         else:
             res_dic['user_id'] = ""
-            res_dic['user_name'] = "".user_name
+            res_dic['user_name'] = ""
             res_dic['is_admin'] = False
 
         response = jsonify(res_dic)
