@@ -138,8 +138,8 @@ class User(Resource):
             return response
 
         form_data = request.form
-        if request.form is None:
-            json_data = request.json(force=True)
+        if len(request.form) == 0:
+            json_data = request.get_json(force=True)
         else:
             json_data = dict([(k, v) for k, v in form_data.items()])
         user_name = json_data.get('user_name', '')

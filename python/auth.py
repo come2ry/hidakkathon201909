@@ -32,12 +32,12 @@ def get_user():
 
     return me
 
-
+# API01
 class Login(Resource):
     def post(self):
         form_data = request.form
-        if request.form is None:
-            json_data = request.json(force=True)
+        if len(request.form) == 0:
+            json_data = request.get_json(force=True)
         else:
             json_data = dict([(k, v) for k, v in form_data.items()])
         user_id = json_data.get('user_id')

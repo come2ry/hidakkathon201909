@@ -147,8 +147,8 @@ class Event(Resource):
 
         # json_data = request.get_json(force=True)
         form_data = request.form
-        if request.form is None:
-            json_data = request.json(force=True)
+        if len(request.form) == 0:
+            json_data = request.get_json(force=True)
         else:
             json_data = dict([(k, v) for k, v in form_data.items()])
 
@@ -228,8 +228,8 @@ class Event(Resource):
             return response
 
         form_data = request.form
-        if request.form is None:
-            json_data = request.json(force=True)
+        if len(request.form) == 0:
+            json_data = request.get_json(force=True)
         else:
             json_data = dict([(k, v) for k, v in form_data.items()])
         event_name = json_data.get('event_name')
@@ -339,8 +339,8 @@ class EventCancel(Resource):
             return response
 
         form_data = request.form
-        if request.form is None:
-            json_data = request.json(force=True)
+        if len(request.form) == 0:
+            json_data = request.get_json(force=True)
         else:
             json_data = dict([(k, v) for k, v in form_data.items()])
         event_id = json_data.get('event_id')
@@ -377,8 +377,8 @@ class EventAttend(Resource):
             return response
 
         form_data = request.form
-        if request.form is None:
-            json_data = request.json(force=True)
+        if len(request.form) == 0:
+            json_data = request.get_json(force=True)
         else:
             json_data = dict([(k, v) for k, v in form_data.items()])
         event_id = json_data.get('event_id')
@@ -454,7 +454,7 @@ class EventRecommend(Resource):
             return response
 
         my_tag_value_dict = {}
-        _particaipate_event = db.session.query(iParticipateEvent).filter_by(user_id=me.user_id).order_by(iEvent.start_date.asc()).all()
+        _particaipate_event = db.session.query(iParticipateEvent).filter_by(user_id=me.user_id).all()
 
         past_events = []
         future_events = {}
@@ -466,7 +466,7 @@ class EventRecommend(Resource):
                 tag_list = [t.tag_id for t in e.tag_list]
                 past_events += [tag_list]
             else:
-                future_events[e.event_id] = [tag_list]
+                future_events[e.event_id] = tag_list
 
         for p_tag in past_events:
             for t in p_tag:
@@ -478,6 +478,8 @@ class EventRecommend(Resource):
         _event_info_list = []
         for f_e_id, f_tag_list in future_events.items():
             sum_ = 0
+            if len(f_tag_list) == 0:
+                continue
             for f_t in f_tag_list:
                 v = my_tag_value_dict.get(f_t, 0)
                 sum_ += v
@@ -486,5 +488,29 @@ class EventRecommend(Resource):
             _event_info_list += [(f_e_id, score)]
 
         _event_info_list.sort(key=lambda x: -x[1])
-        print(_event_info_list)
-        return make_response("", 200)
+
+
+
+        _target_user_type_list = db.session.query(mTargetUserType).order_by(mTargetUserType.target_user_type_id.asc()).all()
+
+        color_code_dict = dict([(t.target_user_type_id, t.color_code) for t in _target_user_type_list])
+
+        event_info_list = []
+        for e_id, score in _event_info_list:
+            event = db.session.query(iEvent).filter_by(event_id=e_id).one_or_none()
+
+            color_code = "#999900"
+            if len(e.target_user_type_list) <= 1:
+                color_code = color_code_dict[e.target_user_type_list[0].target_user_type_id]
+
+            event_info_list += [dict(
+                event_id=e_id,
+                event_name=event.event_name,
+                start_date=event.get_start_date(),
+                end_date=event.get_end_date(),
+                color_code=color_code
+            )]
+
+        response = jsonify(dict(event_info_list=event_info_list))
+        response.status_code = 200
+        return response
