@@ -501,8 +501,7 @@ class EventRecommend(Resource):
             score = sum_/len(f_tag_list)
             _event_info_list += [(f_e_id, score)]
 
-        _event_info_list.sort(key=lambda x: -x[1])
-
+        _event_info_list.sort(key=lambda x: -x[1])[:10]
 
 
         _target_user_type_list = db.session.query(mTargetUserType).order_by(mTargetUserType.target_user_type_id.asc()).all()
