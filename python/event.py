@@ -1,6 +1,6 @@
 from flask import Flask, abort, request, jsonify, abort, make_response, send_file, session
 from flask_restful import Resource
-from __init__ import db
+from __init__ import db, app
 from models import *
 from auth import get_user
 import base64
@@ -467,6 +467,8 @@ class EventRecommend(Resource):
             response = make_response("", 401)
             return response
 
+        app.logger.warn(me)
+
         my_tag_value_dict = {}
         _particaipate_event = db.session.query(iParticipateEvent).filter_by(user_id=me.user_id).all()
 
@@ -507,8 +509,6 @@ class EventRecommend(Resource):
 
         if _event_info_list is None:
             _event_info_list = []
-        else:
-            _event_info_list = _event_info_list
 
         _target_user_type_list = db.session.query(mTargetUserType).order_by(mTargetUserType.target_user_type_id.asc()).all()
         color_code_dict = dict([(t.target_user_type_id, t.color_code) for t in _target_user_type_list])
