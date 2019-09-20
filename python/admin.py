@@ -54,14 +54,15 @@ class Admin(Resource):
         user_name = json_data.get('user_name', '')
         user_comment = json_data.get('user_comment', '')
         password = json_data.get('password', '')
-        is_admin = int(json_data.get('is_admin', 0))
+        is_admin = json_data.get('is_admin', 'false')
+        is_admin = 1 if is_admin == 'true' else 0
 
         user = iUser(**dict(
             user_id=user_id,
             user_name=user_name,
             user_comment=user_comment,
             password=password,
-            is_admin=True if is_admin else False
+            is_admin=is_admin
         ))
 
         db.session.add(user)
@@ -91,7 +92,8 @@ class Admin(Resource):
         user_name = json_data.get('user_name', '')
         user_comment = json_data.get('user_comment', '')
         password = json_data.get('password', None)
-        is_admin = json_data.get('is_admin', 0)
+        is_admin = json_data.get('is_admin', 'false')
+        is_admin = 1 if is_admin == 'true' else 0
 
         user = db.session.query(iUser).filter_by(user_id=user_id).one_or_none()
         if user is None:
@@ -103,7 +105,7 @@ class Admin(Resource):
         user.user_comment = user_comment
         if password is not None:
             user.password = password
-        user.is_admin = 1 if is_admin else 0
+        user.is_admin = is_admin
 
         db.session.commit()
 
