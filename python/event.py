@@ -512,7 +512,7 @@ class EventRecommend(Resource):
             _event_info_list += [(f_e_id, score)]
 
         _event_info_list.sort(key=lambda x: -x[1]*1000000+x[1])
-        app.logger.debug(dict(num='512', event_info_list=event_info_list))
+        app.logger.debug(dict(num='515', _event_info_list=_event_info_list))
 
         if _event_info_list is None:
             app.logger.debug(dict(num='518', event_info_list=event_info_list))
