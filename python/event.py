@@ -3,6 +3,7 @@ from flask_restful import Resource
 from __init__ import db, app
 from models import *
 from auth import get_user
+from pprint import pformat
 import base64
 
 class Event(Resource):
@@ -467,7 +468,7 @@ class EventRecommend(Resource):
             response = make_response("", 401)
             return response
 
-        app.logger.debug(me)
+        app.logger.debug(pformat(me))
 
         my_tag_value_dict = {}
         _particaipate_event = db.session.query(iParticipateEvent).filter_by(user_id=me.user_id).all()
@@ -489,7 +490,7 @@ class EventRecommend(Resource):
                     continue
                 future_events[e.event_id] = tag_list
 
-        app.logger.debug(dict(num='492', future_events=future_events, _past_events=_past_events))
+        app.logger.debug(pformat(dict(num='492', future_events=future_events, _past_events=_past_events)))
         # return make_response("", 200)
 
         for p_tag in past_events:
@@ -512,10 +513,10 @@ class EventRecommend(Resource):
             _event_info_list += [(f_e_id, score)]
 
         _event_info_list.sort(key=lambda x: -x[1]*1000000+x[1])
-        app.logger.debug(dict(num='515', _event_info_list=_event_info_list))
+        app.logger.debug(pformat(dict(num='515', _event_info_list=_event_info_list)))
 
         if _event_info_list is None:
-            app.logger.debug(dict(num='518', event_info_list=_event_info_list))
+            app.logger.debug(pformat(dict(num='518', event_info_list=_event_info_list)))
             _event_info_list = []
 
         _target_user_type_list = db.session.query(mTargetUserType).order_by(mTargetUserType.target_user_type_id.asc()).all()
@@ -541,7 +542,7 @@ class EventRecommend(Resource):
             )]
 
         event_info_list = event_info_list[:10]
-        app.logger.debug(dict(num='544', event_info_list=event_info_list))
+        app.logger.debug(pformat(dict(num='544', event_info_list=event_info_list)))
         response = jsonify(dict(event_info_list=event_info_list))
         response.status_code = 200
         return response
