@@ -515,7 +515,7 @@ class EventRecommend(Resource):
         app.logger.debug(dict(num='515', _event_info_list=_event_info_list))
 
         if _event_info_list is None:
-            app.logger.debug(dict(num='518', event_info_list=event_info_list))
+            app.logger.debug(dict(num='518', event_info_list=_event_info_list))
             _event_info_list = []
 
         _target_user_type_list = db.session.query(mTargetUserType).order_by(mTargetUserType.target_user_type_id.asc()).all()
